@@ -21,18 +21,36 @@ public class search {
     public static String xmlString = "";
     public static String path;
     public static void main(String[] args){
-        ArrayList<String> foundlist = new ArrayList<String>();
-        path = args[0];
-        findPath(path);
-        Document xml = StringtoXML(xmlString);
-        Element elXML = xml.getDocumentElement();
-        String filename = "save.xml";
-        saveXML(xml,new File(filename));
-        searchPath(elXML,args[1],foundlist);
-        for ( int i = 0 ; i < foundlist.size() ; i+=2 ){  //print found file and their directory
-            System.out.println(foundlist.get(i) + " in " + foundlist.get(i+1));
+        try{
+            ArrayList<String> foundlist = new ArrayList<String>();
+            File xmlFile = new File("C:\\project in vs\\software dev\\search_java\\save.xml");
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            Document doc = builder.parse(xmlFile);
+            Element elxml = doc.getDocumentElement();
+            searchPath(elxml,args[1],foundlist);
+            System.out.println("in load");
+            for ( int i = 0 ; i < foundlist.size() ; i+=2 ){  //print found file and their directory
+                System.out.println(foundlist.get(i) + " in " + foundlist.get(i+1));
+            }
+            System.out.println("FINISH\n");
+            
+        }catch(Exception e){
+            ArrayList<String> foundlist = new ArrayList<String>();
+            path = args[0];
+            findPath(path);
+            Document xml = StringtoXML(xmlString);
+            Element elXML = xml.getDocumentElement();
+            String filename = "save.xml";
+            saveXML(xml,new File(filename));
+            searchPath(elXML,args[1],foundlist);
+            System.out.println("new save xml");
+            for ( int i = 0 ; i < foundlist.size() ; i+=2 ){  //print found file and their directory
+                System.out.println(foundlist.get(i) + " in " + foundlist.get(i+1));
+            }
+            System.out.println("FINISH\n");
+
         }
-        System.out.println("FINISH\n");
     }
 
     public static void findPath(String path){
@@ -59,7 +77,6 @@ public class search {
                     MessageDigest md5Digest = MessageDigest.getInstance("MD5");
                     String checksum = getFileChecksum(md5Digest,data);
 //                    System.out.println(checksum);
-
                     xmlString += "<file md5=" + '"' + checksum + '"' + ">" + filename + "</file>";
                 } catch (NoSuchAlgorithmException | IOException e) {
                     e.printStackTrace();
