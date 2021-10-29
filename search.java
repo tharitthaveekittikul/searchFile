@@ -11,6 +11,8 @@ import org.w3c.dom.Document;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.*;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -39,21 +41,66 @@ public class search {
         xmlString += "<folder name=" + '"' + lastpath + '"' + ">";
         File f = new File(path);
         File[] files =  f. listFiles();
-//        System.out.println(f);
+//        System.out.println(path);
         for ( int i = 0 ; i < files.length ; i++ ){
             File file = files[i];
 //            System.out.println(file);
             String filename = file.getName();
+//            System.out.println(filename);
             if ( file.isDirectory() ){
                 String nextpath = files[i].toString();
+//                System.out.println(nextpath);
                 findPath(nextpath);
             }
-            else{
-                xmlString += "<file>" + filename + "</file>";
+            else {
+                File data = new File(path+"/"+filename);
+//                System.out.println(data);
+                try {
+                    MessageDigest md5Digest = MessageDigest.getInstance("MD5");
+                    String checksum = getFileChecksum(md5Digest,data);
+//                    System.out.println(checksum);
+
+                    xmlString += "<file md5=" + '"' + checksum + '"' + ">" + filename + "</file>";
+                } catch (NoSuchAlgorithmException | IOException e) {
+                    e.printStackTrace();
+                }
             }
         }
         xmlString += "</folder>";
     }
+
+    private static String getFileChecksum(MessageDigest digest, File file) throws IOException
+    {
+        //Get file input stream for reading the file content
+        FileInputStream fis = new FileInputStream(file);
+
+        //Create byte array to read data in chunks
+        byte[] byteArray = new byte[1024];
+        int bytesCount = 0;
+
+        //Read file data and update in message digest
+        while ((bytesCount = fis.read(byteArray)) != -1) {
+            digest.update(byteArray, 0, bytesCount);
+        };
+
+        //close the stream; We don't need it now.
+        fis.close();
+
+        //Get the hash's bytes
+        byte[] bytes = digest.digest();
+
+        //This bytes[] has bytes in decimal format;
+        //Convert it to hexadecimal format
+        StringBuilder sb = new StringBuilder();
+        for(int i=0; i< bytes.length ;i++)
+        {
+            sb.append(Integer.toString((bytes[i] & 0xff) + 0x100, 16).substring(1));
+        }
+
+        //return complete hash
+        return sb.toString();
+    }
+
     public static Document StringtoXML(String xmlString){
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = null;
