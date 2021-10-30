@@ -17,25 +17,56 @@ import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import java.text.SimpleDateFormat;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 public class search {
     public static String xmlString = "";
     public static String path;
     public static void main(String[] args){
-        try{
-            ArrayList<String> foundlist = new ArrayList<String>();
-            File xmlFile = new File("C:\\project in vs\\software dev\\search_java\\save.xml");
-            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder builder = factory.newDocumentBuilder();
-            Document doc = builder.parse(xmlFile);
-            Element elxml = doc.getDocumentElement();
-            searchPath(elxml,args[1],foundlist);
-            System.out.println("in load");
-            for ( int i = 0 ; i < foundlist.size() ; i+=2 ){  //print found file and their directory
-                System.out.println(foundlist.get(i) + " in " + foundlist.get(i+1));
+        
+        if(args.length <= 1 || args.length > 2){
+            System.out.println("++++++++++++++++++++++++++WARNING!!++++++++++++++++++++++++++++++++++++");
+            System.out.println("    please insert 2 arguments"); 
+            System.out.println("    java search [path or -l] [what are you looking for?]");
+            System.out.println("    Ex.1 java search /home/Document/Creature dog");
+            System.out.println("    Ex.2 java search -l dog");
+            System.out.println("    P.S. -l is load data from xml file");
+        }
+        else if(args[0].equals("-l") && args[1].length() >= 1){
+            try{
+                ArrayList<String> foundlist = new ArrayList<String>();
+                File xmlFile = new File("C:\\project in vs\\software dev\\search_java\\save.xml");
+                DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+                DocumentBuilder builder = factory.newDocumentBuilder();
+                Document doc = builder.parse(xmlFile);
+                Element elxml = doc.getDocumentElement();
+                searchPath(elxml,args[1],foundlist);
+                if(foundlist.size() != 0){
+                    System.out.println("-------------->load from file save.xml");
+                    for ( int i = 0 ; i < foundlist.size() ; i+=2 ){  //print found file and their directory
+                        System.out.println(foundlist.get(i) + " in " + foundlist.get(i+1));
+                    }
+                }
+                else{
+                    System.out.println("-------NOT FOUND-------");
+                }
+                    System.out.println("FINISH\n");
             }
-            System.out.println("FINISH\n");
-            
-        }catch(Exception e){
+            catch(Exception e){
+                System.out.println("++++++++++++++++++++++++++WARNING!!++++++++++++++++++++++++++++++++++++");
+                System.out.println("    you don't have save.xml file please insert path");
+                System.out.println("    please insert 2 arguments"); 
+                System.out.println("    java search [path] [what are you looking for?]");
+                System.out.println("    Ex.1 java search /home/Document/Creature dog");
+                System.out.println("    P.S. -l is load data from xml file");
+            }
+        }
+        else if(args[0].length() >= 1 && args[1].length() >= 1){
             ArrayList<String> foundlist = new ArrayList<String>();
             path = args[0];
             findPath(path);
@@ -44,14 +75,19 @@ public class search {
             String filename = "save.xml";
             saveXML(xml,new File(filename));
             searchPath(elXML,args[1],foundlist);
-            System.out.println("new save xml");
-            for ( int i = 0 ; i < foundlist.size() ; i+=2 ){  //print found file and their directory
-                System.out.println(foundlist.get(i) + " in " + foundlist.get(i+1));
+            if(foundlist.size() != 0){
+                System.out.println("-------------->new save.xml file");
+                for ( int i = 0 ; i < foundlist.size() ; i+=2 ){  //print found file and their directory
+                    System.out.println(foundlist.get(i) + " in " + foundlist.get(i+1));
+                }
+            }
+            else{
+                System.out.println("-------NOT FOUND-------");
             }
             System.out.println("FINISH\n");
-
         }
     }
+
 
     public static void findPath(String path){
         String[] listpath = path.split("/");
@@ -72,12 +108,18 @@ public class search {
             }
             else {
                 File data = new File(path+"/"+filename);
+                SimpleDateFormat style = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
+                String  date = style.format(data.lastModified()); //date time of file
+                Path pathfile = Paths.get(path+"/"+filename);
+                
 //                System.out.println(data);
                 try {
+                    long bytes = Files.size(pathfile); // size of file (bytes)
+                    // System.out.println(String.format("%,d bytes",bytes));
                     MessageDigest md5Digest = MessageDigest.getInstance("MD5");
                     String checksum = getFileChecksum(md5Digest,data);
 //                    System.out.println(checksum);
-                    xmlString += "<file md5=" + '"' + checksum + '"' + ">" + filename + "</file>";
+                    xmlString += "<file md5=" + '"' + checksum + '"' +" "+"date=" +'"'+ date +'"'+" "+"size ="+'"'+String.format("%,d bytes",bytes)+'"'+">" + filename + "</file>";
                 } catch (NoSuchAlgorithmException | IOException e) {
                     e.printStackTrace();
                 }
