@@ -31,11 +31,11 @@ public class search {
         
         if(args.length <= 1 || args.length > 2){
             System.out.println("++++++++++++++++++++++++++WARNING!!++++++++++++++++++++++++++++++++++++");
-            System.out.println("    please insert 2 arguments"); 
-            System.out.println("    java search [path or -l] [what are you looking for?]");
-            System.out.println("    Ex.1 java search /home/Document/Creature dog");
-            System.out.println("    Ex.2 java search -l dog");
-            System.out.println("    P.S. -l is load data from xml file");
+            System.out.println("     please insert 2 arguments"); 
+            System.out.println("     java search [path or -l] [what are you looking for?]");
+            System.out.println("     Ex.1 java search /home/Document/Creature dog");
+            System.out.println("     Ex.2 java search -l dog");
+            System.out.println("     P.S. -l is load data from xml file");
         }
         else if(args[0].equals("-l") && args[1].length() >= 1){
             try{
@@ -59,11 +59,11 @@ public class search {
             }
             catch(Exception e){
                 System.out.println("++++++++++++++++++++++++++WARNING!!++++++++++++++++++++++++++++++++++++");
-                System.out.println("    you don't have save.xml file please insert path");
-                System.out.println("    please insert 2 arguments"); 
-                System.out.println("    java search [path] [what are you looking for?]");
-                System.out.println("    Ex.1 java search /home/Document/Creature dog");
-                System.out.println("    P.S. -l is load data from xml file");
+                System.out.println("     you don't have save.xml file please insert path");
+                System.out.println("     please insert 2 arguments"); 
+                System.out.println("     java search [path] [what are you looking for?]");
+                System.out.println("     Ex.1 java search /home/Document/Creature dog");
+                System.out.println("     P.S. -l is load data from xml file");
             }
         }
         else if(args[0].length() >= 1 && args[1].length() >= 1){
