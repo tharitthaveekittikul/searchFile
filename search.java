@@ -40,7 +40,7 @@ public class search {
         else if(args[0].equals("-l") && args[1].length() >= 1){
             try{
                 ArrayList<String> foundlist = new ArrayList<String>();
-                File xmlFile = new File("C:\\project in vs\\software dev\\search_java\\save.xml");
+                File xmlFile = new File("save.xml");
                 DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
                 DocumentBuilder builder = factory.newDocumentBuilder();
                 Document doc = builder.parse(xmlFile);
