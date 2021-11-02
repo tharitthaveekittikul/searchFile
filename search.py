@@ -3,26 +3,57 @@ import os
 import xml.etree.ElementTree as ET
 import re
 import hashlib
+import glob
+import time
+import datetime
 
 def setup(): # sys.argv[1],sys.argv[2]  path,find
-    path = sys.argv[1]
-    find = sys.argv[2]
-    xmlString = ""
-    foundlist = []
-    xmlString = findPath(path,xmlString)
-    # print(xmlString)
-    # xml = ET.ElementTree(ET.fromstring(xmlString))
-    xml = ET.XML(xmlString)
-    with open("save.xml","wb") as f:
-        f.write(ET.tostring(xml))
 
-    element = ET.parse("save.xml")
-    mainpath =  element.getroot()
-    searchPath(mainpath,find,foundlist)
-    for i in range(0,len(foundlist),2):
-        print(foundlist[i] + " in " + foundlist[i+1])
-    
-    print("FINISH\n")
+    if len(sys.argv) <= 2 or len(sys.argv) > 3:
+        print("++++++++++++++++++++++++++WARNING!!++++++++++++++++++++++++++++++++++++")
+        print("    please insert 2 arguments")
+        print("    java search [path or -l] [what are you looking for?]")
+        print("    Ex.1 java search /home/Document/Creature dog")
+        print("    Ex.2 java search -l dog")
+        print("    P.S. -l is load data from xml file")
+
+    elif sys.argv[1] == "-l" and len(sys.argv[2]) >= 1:
+        find = sys.argv[2]
+        foundlist = []
+        element = ET.parse("save.xml")
+        mainpath =  element.getroot()
+        searchPath(mainpath,find,foundlist)
+        if len(foundlist) != 0:
+            print("-------------->load from file save.xml")
+            for i in range(0,len(foundlist),2):
+                print(foundlist[i] + " in " + foundlist[i+1])
+        else:
+            print("-------NOT FOUND-------")
+        print("FINISH\n")
+
+    elif len(sys.argv[1]) >= 1 and len(sys.argv[2]) >= 1:
+        path = sys.argv[1]
+        find = sys.argv[2]
+        xmlString = ""
+        foundlist = []
+        xmlString = findPath(path,xmlString)
+        # print(xmlString)
+        # xml = ET.ElementTree(ET.fromstring(xmlString))
+        #print(xmlString)
+        xml = ET.XML(xmlString)
+        with open("save.xml","wb") as f:
+            f.write(ET.tostring(xml))
+
+        element = ET.parse("save.xml")
+        mainpath =  element.getroot()
+        searchPath(mainpath,find,foundlist)
+        if len(foundlist) != 0:
+            print("-------------->new save.xml file")
+            for i in range(0,len(foundlist),2):
+                print(foundlist[i] + " in " + foundlist[i+1])
+        else:
+            print("-------NOT FOUND-------")
+        print("FINISH\n")
     
 
 def findPath(pathsearch,xmlString):
@@ -41,10 +72,20 @@ def findPath(pathsearch,xmlString):
             # print(nextpath)
             xmlString = findPath(nextpath,xmlString)
         else:
-            openfile = open(file,"r",encoding='utf-8')
-            for data in openfile:
-                data = data.strip()
-            xmlString += "<file md5=" + '"' +hashlib.md5(data.encode()).hexdigest() + '">' + filename + "</file>"
+
+            pathglob = glob.glob(file)
+            for f in pathglob:
+                with open(f, 'rb') as getmd5:
+                    md_5 = getmd5.read()
+                    gethash = hashlib.md5(md_5).hexdigest()
+            size = os.path.getsize(file)
+            bytes = '{:,}'.format(size)
+            #date = os.path.getmtime(file)
+            getdate = datetime.datetime.fromtimestamp(os.path.getmtime(file))
+            date = getdate.strftime("%m/%d/%Y %H:%M:%S")
+            #dateformat = dateformat1.strftime("%d/%m/%Y %H:%M:%S")
+            xmlString += "<file md5=" + '"' + gethash + '"' + " " +"date=" + '"' + str(date) +'"' + " " + "size=" + '"' + str(bytes) + " bytes" + '">' + filename + "</file>"
+
     xmlString += "</folder>";   
     return xmlString 
 
